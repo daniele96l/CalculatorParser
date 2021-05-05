@@ -1,0 +1,5 @@
+operator: (+|-|*|/)
+factor = (numbers | letters)
+term = factor ((operator) factor)*
+function = func [factor]
+string = (term | func) (operator  (term| func))*
