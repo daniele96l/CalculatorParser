@@ -1,6 +1,7 @@
 #######################################
 # IMPORTS
 #######################################
+import sys
 
 from strings_with_arrows import *
 
@@ -161,13 +162,11 @@ class Lexer:
                 variableName = variableName + self.current_char  # il valore delle variabile deve essere tra quelli previsti altrimenti da un invalid sysntax error
                 self.advance()
                 if (self.current_char not in alphabet):
-                    print("Nome" + variableName)
+                    print("Variabile: " + variableName)
                     tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
                     # tokens.append(Token(TT_VAR_A, pos_start=self.pos))
 
 
-            elif self.current_char.isupper():
-                print("upper")
 
             else:
                 pos_start = self.pos.copy()
@@ -215,6 +214,9 @@ class BinOpNode:
         self.left_node = left_node
         self.op_tok = op_tok
         self.right_node = right_node
+        if(str(self.right_node) in str(TT_EOF)):
+            print("Error, expected a variable or function after the operator: " + str(self.op_tok))
+            sys.exit(1)
 
     def __repr__(self):
         return f'({self.left_node}, {self.op_tok}, {self.right_node})'
