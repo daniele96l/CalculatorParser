@@ -149,7 +149,7 @@ class Lexer:
                 self.advance()
             elif self.current_char.isalpha():  #qui inserire il riconoscimento di variabili a più lettere
                 TT_VAR_A = 'VAR_A'
-                variableName = 'VAR_B'   #il valore delle variabile deve essere tra quelli previsti altrimenti da un invalid sysntax error
+                variableName = variableName + str(self.current_char)   #il valore delle variabile deve essere tra quelli previsti altrimenti da un invalid sysntax error
                 self.advance()
                 if(self.current_char not in alphabet):
 
@@ -214,18 +214,18 @@ class BinOpNode: #crep il branch dell'albero
         else:
             node = f'({self.left_node}, {self.op_tok}, {self.right_node})'
             return node
-        #E SE IO MODIFICASSI QUI LA LISTA DEI TOKEN METTENDO SEMPLICEMENTE LE PARENTESI A FIANCO DEI NODI? 
+        #E SE IO MODIFICASSI QUI LA LISTA DEI TOKEN METTENDO SEMPLICEMENTE LE PARENTESI A FIANCO DEI NODI?
 
 # PARSER
 
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
-        print(tokens, "tokens appena presi dal parser")
+        print(tokens, "tokens appena  dal parser")
+
 
 
     def term(self):   #the grammar how a factor works
-
         tok = self.tokens
         #quello che devo andare a fare ora è trovare la prima "*" e creare il primo branch
         for i in range(len(tok)):
@@ -246,7 +246,7 @@ def run(fn, text):
     # Generate AST
     parser = Parser(tokens)
     ast = parser.term()
-    print(ast)                 #questo è il mio primo banch ch'è stato ritornato
+    #print(ast)                 #questo è il mio primo banch ch'è stato ritornato
 
    # ast = parser.parse()
 
