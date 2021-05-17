@@ -166,13 +166,12 @@ class Lexer:
                     tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
                     # tokens.append(Token(TT_VAR_A, pos_start=self.pos))
 
-
-
             else:
                 pos_start = self.pos.copy()
                 char = self.current_char
                 self.advance()
                 return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
+
 
         tokens.append(Token(TT_EOF, pos_start=self.pos))
         return tokens, None
@@ -230,6 +229,7 @@ class UnaryOpNode:
 
     def __repr__(self):
         if(str(self.op_tok) in TT_OP):
+            print("1")
             return InvalidSyntaxError
         return f'({self.op_tok}, {self.node})'
 
@@ -245,8 +245,8 @@ class ParseResult:
 
     def register(self, res):
         if isinstance(res, ParseResult):
-            if res.error: self.error = res.error
-            return res.node
+            if res.error: self.error = res.error #controlla se il risultato del check di quel nodo è fattibile
+            return res.node #in caso positivo ritorna il nodo carino c:
 
         return res
 
@@ -278,10 +278,8 @@ class Parser:
     def parse(self):
         res = self.expr()
         if not res.error and self.current_tok.type != TT_EOF:
-            return res.failure(InvalidSyntaxError(
-                self.current_tok.pos_start, self.current_tok.pos_end,
-                "Expected '+', '-', '*' or '/'"
-            ))
+            print("2")
+            return res.failure(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end,"Expected '+', '-', '*' or '/'" ))
         return res
 
     ###################################
@@ -292,30 +290,28 @@ class Parser:
 
 
         if tok.type in (TT_PLUS, TT_MINUS):
-            res.register(self.advance())
-            factor = res.register(self.factor())
+            res.register(self.advance()) #passo il nodo al res.register per controllare che sia carino c:
+            factor = res.register(self.factor()) #il factor è il mio fattore, ovvero il mio "elemento" base
             if res.error: return res
             return res.success(UnaryOpNode(tok, factor)) #credo quindi il primo fattore, che sarà il nodo
 
-        elif tok.type not in Forbidden :
-            res.register(self.advance())
-
-            return res.success(NumberNode(tok)) #creo quindi il nodo del fattore che sarà il numero o la variabile
 
         elif tok.type == TT_LPAREN:
-            res.register(self.advance())
-            expr = res.register(self.expr())
+            res.register(self.advance())  #passo il nodo al res.register per controllare che sia carino c:
+            expr = res.register(self.expr()) #il factor è il mio fattore, ovvero il mio "elemento" base
             if res.error: return res
             if self.current_tok.type == TT_RPAREN:
                 res.register(self.advance())
                 return res.success(expr)
             else:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, self.current_tok.pos_end,
-                    "Expected ')'"
-                ))
+                print("3")
+                return res.failure(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end,"Expected ')'"))
+        elif tok.type not in Forbidden:
+            res.register(self.advance())
 
+            return res.success(NumberNode(tok))  # creo quindi il nodo del fattore che sarà il numero o la variabile
         #entro qui dentro solo se non sono entrato dentro gli altri elif
+        print("4")
         return res.failure(InvalidSyntaxError(tok.pos_start, tok.pos_end,"Expected int or float"))
 
     def term(self):  #quelli uniti da moltiplicazione, questo aiuta a dare l'ordine di esecuzione
