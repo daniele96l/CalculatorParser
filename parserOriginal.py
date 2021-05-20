@@ -9,7 +9,7 @@ from strings_with_arrows import *
 # CONSTANTS
 #######################################
 
-DIGITS = '0123456789'
+
 
 
 #######################################
@@ -85,9 +85,11 @@ TT_VAR_A = 'VAR_A'
 TT_VAR_B = 'VAR_B'
 TT_VAR_C = 'VAR_C'
 TT_OP = 'MUL','DIV','PLUS','MINUS',
-alphabet = 'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z','x','y','w','j'
+alphabet = 'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z','x','y','w','j','k'
 TT_FUNC = "Func"
+DIGITS = '0123456789'
 Forbidden = '.',',','%','£'
+insidefunction = False
 
 class Token:
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
@@ -126,45 +128,89 @@ class Lexer:
     def make_tokens(self):
         tokens = []
         variableName = ''
-
+        functionName = ''
+        digit = 0
         while self.current_char != None:
             if self.current_char in ' \t':
                 self.advance()
-            elif self.current_char in DIGITS:
+            elif self.current_char in DIGITS and insidefunction==False:
                 variableName = ''
-                tokens.append(self.make_number())
+                functionName = ''
+                print(self.current_char)
+                digit =+ int(self.current_char)
+                self.advance()
+               # tokens.append(self.make_number())
+                while (str(self.current_char) in str(DIGITS)):
+                    digit =+ int(self.current_char)
+                    self.advance()
+
+                tokens.append(Token(digit, pos_start=self.pos))
+
+
             elif self.current_char == '+':
+                digit = ''
+                functionName = ''
                 variableName = ''
                 tokens.append(Token(TT_PLUS, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '-':
+                digit = ''
                 variableName = ''
+                functionName = ''
                 tokens.append(Token(TT_MINUS, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '*':
+                digit = ''
                 variableName = ''
+                functionName = ''
                 tokens.append(Token(TT_MUL, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '/':
+                digit = ''
                 variableName = ''
+                functionName = ''
                 tokens.append(Token(TT_DIV, pos_start=self.pos))
                 self.advance()
+            elif self.current_char.isalpha():  #qui inserire il riconoscimento di variabili a più lettere
+                variableName = variableName + self.current_char  # il valore delle variabile deve essere tra quelli previsti altrimenti da un invalid sysntax error
+                functionName = functionName + self.current_char
+                digit = ''
+                self.advance()
+                if (self.current_char not in alphabet): #quando troviamo un carattere diverso da "alfabeto" possiamo chiudere la variabile
+                    if(self.current_char == '('):
+                        insidefunction = True
+                        functionName = functionName + str(self.current_char)
+                        print(functionName)
+                        self.advance()
+                        while(self.current_char in (alphabet or DIGITS)):
+                            if(self.current_char in (alphabet)):
+                                functionName = functionName + str(self.current_char)
+
+                            self.advance()  # facendo cosi perà dentro la funzione ci può essere al massimoun termine
+
+                        if (self.current_char == ')'):
+                            insidefunction = False
+                            functionName = functionName + self.current_char
+                            print("function " + functionName)
+                            tokens.append(Token(functionName, pos_start=self.pos))
+                            self.advance()
+                    else:
+                        print("Variabile: " + variableName)
+                        tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
+                    # tokens.append(Token(TT_VAR_A, pos_start=self.pos))
+
             elif self.current_char == '(':
+                digit = ''
                 variableName = ''
+                functionName = ''
                 tokens.append(Token(TT_LPAREN, pos_start=self.pos))
                 self.advance()
             elif self.current_char == ')':
+                digit = ''
                 variableName = ''
+                functionName = ''
                 tokens.append(Token(TT_RPAREN, pos_start=self.pos))
                 self.advance()
-            elif self.current_char.isalpha():  #qui inserire il riconoscimento di variabili a più lettere
-
-                variableName = variableName + self.current_char  # il valore delle variabile deve essere tra quelli previsti altrimenti da un invalid sysntax error
-                self.advance()
-                if (self.current_char not in alphabet):
-                    print("Variabile: " + variableName)
-                    tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
-                    # tokens.append(Token(TT_VAR_A, pos_start=self.pos))
 
             else:
                 pos_start = self.pos.copy()
@@ -172,7 +218,7 @@ class Lexer:
                 self.advance()
                 return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
 
-
+        print(tokens)
         tokens.append(Token(TT_EOF, pos_start=self.pos))
         return tokens, None
 
@@ -273,10 +319,12 @@ class Parser:
         self.tok_idx += 1
         if self.tok_idx < len(self.tokens):
             self.current_tok = self.tokens[self.tok_idx]
-        return self.current_tok
+        return self.current_tok #vado avanti finchè non raggiungo la fine
 
     def parse(self):
-        res = self.expr()
+
+        res = self.expr()  #METODO esp chiamerà term che a sua volta chiamerà factor, mi ritorna un nodo binario
+        #res non è altro che l'espressione
         if not res.error and self.current_tok.type != TT_EOF:
             print("2")
             return res.failure(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end,"Expected '+', '-', '*' or '/'" ))
@@ -318,6 +366,7 @@ class Parser:
         return self.bin_op(self.factor, (TT_MUL, TT_DIV))
 
     def expr(self):
+        #print(self.term())
         return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
 
     ###################################
@@ -327,15 +376,23 @@ class Parser:
         left = res.register(func())
         if res.error: return res
 
-        while self.current_tok.type in ops:
+        while self.current_tok.type in ops: #se il current token è nei token accettati dal tipo di operazioni del nodo binaio
             op_tok = self.current_tok
-            res.register(self.advance())
-            right = res.register(func())
+            res.register(self.advance()) #vado avanti e prendo il prossimo token
+            right = res.register(func()) #da qui estraggo il nodo a destra
+
             if res.error: return res
             left = BinOpNode(left, op_tok, right)
 
         return res.success(left)
+#######################################
+# RUN
+#######################################
 
+#dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
+#se uno dei factor dei term è in comune allora
+#term + term -> factor(term-factor + term-factor)
+#abc+adf -> a(b*c+d*f)
 
 #######################################
 # RUN
@@ -348,7 +405,7 @@ def run(fn, text):
     if error: return None, error
 
     # Generate AST
-    parser = Parser(tokens)
-    ast = parser.parse()
+    parser = Parser(tokens) #instanzio il parser e gli passo i tokens
+    ast = parser.parse() #con i tokens passati al parser faccio il parsing
 
     return ast.node, ast.error
