@@ -89,7 +89,7 @@ alphabet = 'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','
 TT_FUNC = "Func"
 DIGITS = '0123456789'
 Forbidden = '.',',','%','£'
-insidefunction = False
+
 
 class Token:
     def __init__(self, type_, value=None, pos_start=None, pos_end=None):
@@ -114,6 +114,7 @@ class Token:
 #######################################
 
 class Lexer:
+    insidefunction = False
     def __init__(self, fn, text):
         self.fn = fn
         self.text = text
@@ -133,7 +134,8 @@ class Lexer:
         while self.current_char != None:
             if self.current_char in ' \t':
                 self.advance()
-            elif self.current_char in DIGITS and insidefunction==False:
+            elif (self.current_char in DIGITS ):
+
                 variableName = ''
                 functionName = ''
                 print(self.current_char)
@@ -171,7 +173,7 @@ class Lexer:
                 functionName = ''
                 tokens.append(Token(TT_DIV, pos_start=self.pos))
                 self.advance()
-            elif self.current_char.isalpha():  #qui inserire il riconoscimento di variabili a più lettere
+            elif self.current_char.isalpha() or (self.current_char in DIGITS and insidefunction == True):  #qui inserire il riconoscimento di variabili a più lettere
                 variableName = variableName + self.current_char  # il valore delle variabile deve essere tra quelli previsti altrimenti da un invalid sysntax error
                 functionName = functionName + self.current_char
                 digit = ''
@@ -179,14 +181,14 @@ class Lexer:
                 if (self.current_char not in alphabet): #quando troviamo un carattere diverso da "alfabeto" possiamo chiudere la variabile
                     if(self.current_char == '('):
                         insidefunction = True
-                        functionName = functionName + str(self.current_char)
-                        print(functionName)
-                        self.advance()
-                        while(self.current_char in (alphabet or DIGITS)):
-                            if(self.current_char in (alphabet)):
-                                functionName = functionName + str(self.current_char)
 
-                            self.advance()  # facendo cosi perà dentro la funzione ci può essere al massimoun termine
+                        functionName = functionName + self.current_char
+                        self.advance()
+
+                        while(self.current_char in (DIGITS) or self.current_char in alphabet):
+                            functionName = functionName + str(self.current_char)
+                            self.advance()
+                            print("Funzione " + functionName)
 
                         if (self.current_char == ')'):
                             insidefunction = False
