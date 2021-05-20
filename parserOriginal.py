@@ -130,7 +130,7 @@ class Lexer:
         tokens = []
         variableName = ''
         functionName = ''
-        digit = 0
+        digit = ''
         while self.current_char != None:
             if self.current_char in ' \t':
                 self.advance()
@@ -143,7 +143,7 @@ class Lexer:
                 self.advance()
                # tokens.append(self.make_number())
                 while (str(self.current_char) in str(DIGITS)):
-                    digit =+ int(self.current_char)
+                    digit = str(digit) + str(self.current_char)
                     self.advance()
 
                 tokens.append(Token(digit, pos_start=self.pos))
