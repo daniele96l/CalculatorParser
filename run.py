@@ -9,4 +9,4 @@ while True:
     #result, error = parserOriginal.run('<stdin>', text)
 
     if error: print(error.as_string())
-    else: print(result)
+    else: print(result) and print("Tree:")

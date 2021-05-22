@@ -2,7 +2,7 @@
 # IMPORTS
 #######################################
 import sys
-
+import collections
 from strings_with_arrows import *
 
 #######################################
@@ -138,7 +138,7 @@ class Lexer:
 
                 variableName = ''
                 functionName = ''
-                print(self.current_char)
+               # print(self.current_char)
                 digit =+ int(self.current_char)
                 self.advance()
                # tokens.append(self.make_number())
@@ -188,16 +188,16 @@ class Lexer:
                         while(self.current_char in (DIGITS) or self.current_char in alphabet):
                             functionName = functionName + str(self.current_char)
                             self.advance()
-                            print("Funzione " + functionName)
+                          #  print("Funzione " + functionName)
 
                         if (self.current_char == ')'):
                             insidefunction = False
                             functionName = functionName + self.current_char
-                            print("function " + functionName)
+                           # print("function " + functionName)
                             tokens.append(Token(functionName, pos_start=self.pos))
                             self.advance()
                     else:
-                        print("Variabile: " + variableName)
+                       # print("Variabile: " + variableName)
                         tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
                     # tokens.append(Token(TT_VAR_A, pos_start=self.pos))
 
@@ -220,7 +220,7 @@ class Lexer:
                 self.advance()
                 return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
 
-        print(tokens)
+       # print(tokens)
         tokens.append(Token(TT_EOF, pos_start=self.pos))
         return tokens, None
 
@@ -324,7 +324,6 @@ class Parser:
         return self.current_tok #vado avanti finchè non raggiungo la fine
 
     def parse(self):
-
         res = self.expr()  #METODO esp chiamerà term che a sua volta chiamerà factor, mi ritorna un nodo binario
         #res non è altro che l'espressione
         if not res.error and self.current_tok.type != TT_EOF:
@@ -334,17 +333,15 @@ class Parser:
 
     ###################################
 
-    def factor(self):
+    def factor(self): #serve solo per fare un check degli errori ed eventialmente ritorna ritorna il nodo (singolo token)
         res = ParseResult()
         tok = self.current_tok
-
 
         if tok.type in (TT_PLUS, TT_MINUS):
             res.register(self.advance()) #passo il nodo al res.register per controllare che sia carino c:
             factor = res.register(self.factor()) #il factor è il mio fattore, ovvero il mio "elemento" base
             if res.error: return res
             return res.success(UnaryOpNode(tok, factor)) #credo quindi il primo fattore, che sarà il nodo
-
 
         elif tok.type == TT_LPAREN:
             res.register(self.advance())  #passo il nodo al res.register per controllare che sia carino c:
@@ -358,40 +355,203 @@ class Parser:
                 return res.failure(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end,"Expected ')'"))
         elif tok.type not in Forbidden:
             res.register(self.advance())
-
             return res.success(NumberNode(tok))  # creo quindi il nodo del fattore che sarà il numero o la variabile
-        #entro qui dentro solo se non sono entrato dentro gli altri elif
+
+
         print("4")
         return res.failure(InvalidSyntaxError(tok.pos_start, tok.pos_end,"Expected int or float"))
 
-    def term(self):  #quelli uniti da moltiplicazione, questo aiuta a dare l'ordine di esecuzione
-        return self.bin_op(self.factor, (TT_MUL, TT_DIV))
+    def term(self):  # questo aiuta a dare l'ordine di esecuzione
+        #print("creo il term")
+        return self.bin_op(self.factor, (TT_MUL, TT_DIV)) #viene creato il nodo binario prima con la moltiplicazione
+    #Poi la moltiplciazione chiama anche factor, che va a "avanti" e vede se ci sono altre robe come "+ -" oppure le parentesi
 
-    def expr(self):
+
+    def expr(self): #PRIMA COSA CHE VIENE CHIAMATA DURANTE IL PARSING
         #print(self.term())
-        return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
+        return self.bin_op(self.term, (TT_PLUS, TT_MINUS)) #poi viene chiamato il term
 
     ###################################
 
-    def bin_op(self, func, ops):
+    def bin_op(self, func, ops): #dentro func c'è il fattore
         res = ParseResult()
-        left = res.register(func())
+        left = res.register(func()) #nodo SINISTRO ---- func non è altro che il term
+
         if res.error: return res
 
         while self.current_tok.type in ops: #se il current token è nei token accettati dal tipo di operazioni del nodo binaio
             op_tok = self.current_tok
             res.register(self.advance()) #vado avanti e prendo il prossimo token
-            right = res.register(func()) #da qui estraggo il nodo a destra
+            right = res.register(func()) #da qui estraggo il nodo a DESTRO
 
             if res.error: return res
             left = BinOpNode(left, op_tok, right)
 
         return res.success(left)
 #######################################
-# RUN
+# Optimize
 #######################################
 
-#dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
+class Optimizer:
+
+    #a*a*a+a = (((a, MUL, a), MUL, a), PLUS, a)
+
+    def __init__(self,ast):
+        self.ast = ast
+        self.scan()
+        tmp = []
+
+    def pop_left(self,ast):
+        if hasattr(ast, 'left_node'):
+            #print(ast.left_node)
+            return self.pop_left(ast.left_node)
+        else:
+            return ast
+
+    def pop_right(self, ast):
+        if hasattr(ast, 'right_node'):
+            #print(ast.right_node)
+            return self.pop_right(ast.right_node)
+        else:
+            return ast
+
+    def scan(self):
+        print(self.pop_left(self.ast))
+        self.pop_right(self.ast)
+
+
+#######################################
+# OptimizeSelvaggio
+#######################################
+
+class OptimizerSelvaggio:
+
+    #a*a*a+a = (((a, MUL, a), MUL, a), PLUS, a)
+    op = '+','-'
+
+    def __init__(self,text):
+        self.text = text
+        terms = []
+        index = 0
+        terms = self.scan(terms, index)
+        position = self.findCommon(terms)
+        self.saveAndDelete(terms,position)
+
+    def scan(self, terms, index):
+        for i in range(len(self.text)): #questo è quello che causa avere un vettore troppo lungo
+            terms.append('')
+
+        for i in range(len(self.text)):  #divido in terms
+            if(self.text[i] not in self.op):
+                #print(self.text[i])
+                terms[index] += self.text[i]
+
+            if((self.text[i] == '+') or (self.text[i] == '-') ):
+                index += 1
+                terms[index] += self.text[i]
+                index += 1
+
+
+        for i in range(len(self.text)):  #tolgo gli spazi vuoti
+            terms[:] = [item for item in terms if item != '']
+
+        return terms
+
+    def findCommon(self, terms):
+        indx = 0
+
+        position = terms.copy()
+
+        for i in range(len(position)):
+            position[i] = ''
+
+        for i in range(len(terms)):
+            for y in range(len(terms)):
+                if((terms[i] in terms[y]) or (terms[y] in terms[i])): #qui vado a trovare le posizioni di dove la stessa variabile è ripetuta
+                    if(i!= y and (terms[i] and terms[i]) != ("+" or "-")):
+                        position[indx] = ''.join(sorted(set(terms[i]).intersection(set(terms[y]))))  #vorrei che mettessi il numero corrispondente a quante volte la variabile si presenta
+                indx += 1
+            indx = 0
+
+        print("terms")
+        print(terms)
+
+        return position
+
+    def saveAndDelete(self,terms,position):
+
+        binaryNode = ['','']
+        newString = []
+        toGroup = []
+        checkPos = []
+        z = 0
+        y = 0
+        w = 0
+
+        for i in range(len(terms)): #questo è quello che causa avere un vettore troppo lungo
+            checkPos.append('')
+            checkPos.append('')
+        for i in range(3*len(terms)):  # questo è quello che causa avere un vettore troppo lungo
+            newString.append('')
+
+        finalString = newString.copy()
+        # terms[y]
+        # ['a', '+', 'b', '+', 'a']   #devo in qualche modo raggruppare vicino le 'a'
+
+        # position[i]
+        # ['a', '', '', '', 'a']
+
+        # chekpos[z]
+        # ['a'] le uniche variabili che si ripetono
+
+        for i in range(len(terms)): #elimino gli spazi in position
+            if(position[i] != '' and position[i] not in checkPos):
+                checkPos[y] = position[i]
+                y+=1
+
+        checkPos = list(filter(None, checkPos))
+        print("checkpos")
+        print(checkPos)
+
+        y = 0
+        rimosso = False
+
+        for z in range(len(checkPos)): #raggruppo i termini che hanno una variabile in comune
+            newString[w] = '+'+  checkPos[z] #prima metto la lettera
+            w+= 1
+            newString[w] = '('  #apro la parentesi
+            w+=1
+            for y in range(len(terms)):
+                if (checkPos[z] in terms[y]): #l'ordine deve essere dettato da quelli in "checkpos"
+                    if(y-1>0):
+                        newString[w] = terms[y-1] #gestisco il segno
+                        w+=1
+                    for k in range(len(terms[y])):
+                        if(not rimosso):
+                            newString[w] += '1'
+                            rimosso = True
+                        else:
+                            newString[w] += terms[y][k]  # metto il simbolo
+                    rimosso = False
+
+
+
+
+                    #newString[w] = newString[w] - checkPos[z]
+                    w += 1
+            newString[w] = ')'   #chiuso la parentesi
+            w+=1
+
+        #for z in range(len(checkPos)):
+
+
+
+        print("new string")
+        print(newString)
+        #print(commonVar)
+
+
+    #dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
 #se uno dei factor dei term è in comune allora
 #term + term -> factor(term-factor + term-factor)
 #abc+adf -> a(b*c+d*f)
@@ -409,5 +569,8 @@ def run(fn, text):
     # Generate AST
     parser = Parser(tokens) #instanzio il parser e gli passo i tokens
     ast = parser.parse() #con i tokens passati al parser faccio il parsing
+    #print(ast.node)
+    #Optimizer(ast.node)
+    OptimizerSelvaggio(text)
 
     return ast.node, ast.error
