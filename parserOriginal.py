@@ -542,10 +542,16 @@ class OptimizerSelvaggio:
             w+=1
 
         for i in range(len(terms)):
-            if terms[i] not in checkPos and terms[i] not in self.op:
-                newString[w] += terms[i-1]
+            if terms[i] not in checkPos and terms[i] not in self.op: #le cose non ottimizzate le metto alla fine
+                if(i-1 > 0 ):
+                    newString[w] += terms[i-1] #il segno prima della variabile non presente
+                    w += 1
+                else:
+                    newString[w] += "+"  # il segno prima della variabile non presente
+                    w += 1
+
+                newString[w] += terms[i] #la variabile non presente
                 w += 1
-                newString[w] += terms[i]
 
         return newString
 
