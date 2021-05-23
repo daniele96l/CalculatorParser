@@ -546,12 +546,10 @@ class OptimizerSelvaggio:
                 if(i-1 > 0 ):
                     newString[w] += terms[i-1] #il segno prima della variabile non presente
                     w += 1
-                else:
-                    newString[w] += "+"  # il segno prima della variabile non presente
-                    w += 1
 
-                newString[w] += terms[i] #la variabile non presente
-                w += 1
+                if(('*' or '/')  not in terms[i]):
+                    newString[w] += terms[i] #la variabile non presente
+                    w += 1
 
         return newString
 
@@ -582,7 +580,7 @@ class StringRefactoring():
 
 
 
-    #dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
+#dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
 #se uno dei factor dei term è in comune allora
 #term + term -> factor(term-factor + term-factor)
 #abc+adf -> a(b*c+d*f)
