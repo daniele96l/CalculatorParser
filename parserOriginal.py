@@ -435,7 +435,9 @@ class OptimizerSelvaggio:
         index = 0
         terms = self.scan(terms, index)
         position = self.findCommon(terms)
-        self.saveAndDelete(terms,position)
+        self.newstring = self.saveAndDelete(terms,position)
+
+
 
     def scan(self, terms, index):
         for i in range(len(self.text)): #questo è quello che causa avere un vettore troppo lungo
@@ -475,14 +477,11 @@ class OptimizerSelvaggio:
 
         print("terms")
         print(terms)
-
         return position
 
     def saveAndDelete(self,terms,position):
 
-        binaryNode = ['','']
         newString = []
-        toGroup = []
         checkPos = []
         z = 0
         y = 0
@@ -490,22 +489,14 @@ class OptimizerSelvaggio:
 
         for i in range(len(terms)): #questo è quello che causa avere un vettore troppo lungo
             checkPos.append('')
-            checkPos.append('')
+
         for i in range(3*len(terms)):  # questo è quello che causa avere un vettore troppo lungo
             newString.append('')
 
         finalString = newString.copy()
-        # terms[y]
-        # ['a', '+', 'b', '+', 'a']   #devo in qualche modo raggruppare vicino le 'a'
-
-        # position[i]
-        # ['a', '', '', '', 'a']
-
-        # chekpos[z]
-        # ['a'] le uniche variabili che si ripetono
 
         for i in range(len(terms)): #elimino gli spazi in position
-            if(position[i] != '' and position[i] not in checkPos):
+            if(position[i] != '' and position[i] not in checkPos and position[i] not in self.op): #le variabili che salvo
                 checkPos[y] = position[i]
                 y+=1
 
@@ -515,40 +506,74 @@ class OptimizerSelvaggio:
 
         y = 0
         rimosso = False
+        entrato = False
+
+        # terms[y]
+        # ['a', '+', 'b', '+', 'a']   #devo in qualche modo raggruppare vicino le 'a'
+
+        # position[i]
+        # ['a', '', '', '', 'a']
+
+        # chekpos[z]
+        # ['a'] le uniche variabili che si ripetono
 
         for z in range(len(checkPos)): #raggruppo i termini che hanno una variabile in comune
             newString[w] = '+'+  checkPos[z] #prima metto la lettera
             w+= 1
-            newString[w] = '('  #apro la parentesi
+            newString[w] = '*('  #apro la parentesi
             w+=1
             for y in range(len(terms)):
                 if (checkPos[z] in terms[y]): #l'ordine deve essere dettato da quelli in "checkpos"
                     if(y-1>0):
                         newString[w] = terms[y-1] #gestisco il segno
                         w+=1
-                    for k in range(len(terms[y])):
+                    for k in range(len(terms[y])):  #qui vado a rimuovere la variabile che essendo in comune è stata portata fuori
+
                         if(not rimosso):
                             newString[w] += '1'
                             rimosso = True
                         else:
                             newString[w] += terms[y][k]  # metto il simbolo
+
                     rimosso = False
-
-
-
-
-                    #newString[w] = newString[w] - checkPos[z]
+                    entrato = False
                     w += 1
             newString[w] = ')'   #chiuso la parentesi
             w+=1
 
-        #for z in range(len(checkPos)):
+        for i in range(len(terms)):
+            if terms[i] not in checkPos and terms[i] not in self.op:
+                newString[w] += terms[i-1]
+                w += 1
+                newString[w] += terms[i]
+
+        return newString
 
 
+    def Getter(self):
 
-        print("new string")
-        print(newString)
-        #print(commonVar)
+        return self.newstring
+
+#######################################
+# Stringa più presentabile
+#######################################
+
+class StringRefactoring():
+
+    def __init__(self,text):
+        self.text = text
+        print("string")
+        print(self.text)
+        self.refactor()
+
+
+    def refactor(self):
+        optimized = ''
+        for i in self.text:
+            optimized += i
+        print(optimized)
+
+
 
 
     #dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
@@ -569,8 +594,9 @@ def run(fn, text):
     # Generate AST
     parser = Parser(tokens) #instanzio il parser e gli passo i tokens
     ast = parser.parse() #con i tokens passati al parser faccio il parsing
-    #print(ast.node)
-    #Optimizer(ast.node)
-    OptimizerSelvaggio(text)
+
+    #Optimize
+    optimizer = OptimizerSelvaggio(text)
+    refactor = StringRefactoring(optimizer.Getter())
 
     return ast.node, ast.error
