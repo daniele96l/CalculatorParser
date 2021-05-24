@@ -468,35 +468,33 @@ class OptimizerSelvaggio:
                 multichar[m] = False
                 m += 1
 
-        print(multichar)
+        #print(multichar)
 
         for i in range(len(terms)):
             for y in range(len(terms)):
-                if((terms[i] in terms[y] and multichar[y]) or (terms[y] in terms[i] and multichar[i])): #qui vado a trovare le posizioni di dove la stessa variabile è ripetuta
-                    if(i!= y and (terms[y] and terms[i]) != ("+" or "-")):
+                if((terms[i] in terms[y]) or (terms[y] in terms[i])): #qui vado a trovare le posizioni di dove la stessa variabile è ripetuta
+                    if(i!= y and (terms[y] and terms[i]) != ("+" or "-") and multichar[y] and multichar[i]):
                         position[indx] = ''.join(sorted(set(terms[i]).intersection(set(terms[y]))))  #vorrei che mettessi il numero corrispondente a quante volte la variabile si presenta
+
                 indx += 1
             indx = 0
 
-        print("terms")
-        print(terms)
-        print("Position")
-        print(position)
+        #print("terms")
+        #print(terms)
+        #print("Position")
+        #print(position)
         return position
 
     def saveAndDelete(self,terms,position):
 
         newString = []
         checkPos = []
-
         z = 0
         y = 0
         w = 0
 
-
         for i in range(len(terms)):
             checkPos.append('')
-
 
         for i in range(3*len(terms)):  # questo è quello che causa avere un vettore troppo lungo
             newString.append('')
@@ -505,14 +503,12 @@ class OptimizerSelvaggio:
 
         for i in range(len(terms)): #elimino gli spazi in position
             if(position[i] != '' and position[i] not in checkPos and position[i] not in self.op): #le variabili che salvo
-                #if(multichar[i]):
                     checkPos[y] = position[i]  #devo fare questa associazione solo se la variabile di position che nella stessa i ha associato un true in multichar
                     y+=1
 
         checkPos = list(filter(None, checkPos))
-        print("variabili da mettere in comune")
-        print(checkPos)
-
+        #print("variabili da mettere in comune - chekpos")
+        #print(checkPos)
 
         y = 0
         rimosso = False
@@ -538,7 +534,6 @@ class OptimizerSelvaggio:
                         newString[w] = terms[y-1] #gestisco il segno
                         w+=1
                     for k in range(len(terms[y])):  #qui vado a rimuovere la variabile che essendo in comune è stata portata fuori
-
                         if(not rimosso):
                             newString[w] += '1'
                             rimosso = True
@@ -548,11 +543,12 @@ class OptimizerSelvaggio:
                     rimosso = False
                     entrato = False
                     w += 1
-            newString[w] = ')'   #chiuso la parentesi
+            newString[w] = ')'   #chiudo la parentesi
             w+=1
 
         for i in range(len(terms)):
             if terms[i] not in checkPos and terms[i] not in self.op: #le cose non ottimizzate le metto alla fine
+                #print(terms)
                 if(i-1 > 0 ):
                     newString[w] += terms[i-1] #il segno prima della variabile non presente
                     w += 1
@@ -561,11 +557,11 @@ class OptimizerSelvaggio:
                     newString[w] += terms[i] #la variabile non presente
                     w += 1
 
+       # print("New string")
+       # print(newString)
         return newString
 
-
     def Getter(self):
-
         return self.newstring
 
 #######################################
@@ -576,18 +572,47 @@ class StringRefactoring():
 
     def __init__(self,text):
         self.text = text
-        print("string")
-        print(self.text)
-        self.refactor()
+        opt = self.refactor()
+        self.calc(opt)
 
 
     def refactor(self):
         optimized = ''
         for i in self.text:
             optimized += i
-        print(optimized)
+
+        return  optimized
+
+    def calc(self,opt):
+        j = 0
+        new = ''
+        new2 = ''
+
+        for i in range(len(opt)):
+            if((opt[i].isnumeric()) and opt[i+1] == "*"):
+                new += ''
+                j += 2
+
+            else:
+                if(j < len(opt)):
+                    new += opt[j]
+                    j+= 1
+
+        j = 0
+        for i in range(len(new)):
+            if (new[i] == "+" and new[i+1].isalpha() and new[i+1] and i == 0):
+                new2 += ''
+                j += 1
+
+            else:
+                #print(j)
+                if (j < len(new)):
+                    new2 += new[j]
+                    j += 1
 
 
+        print("Optimized string")
+        print(new2)
 
 
 #dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
@@ -608,6 +633,8 @@ def run(fn, text):
     # Generate AST
     parser = Parser(tokens) #instanzio il parser e gli passo i tokens
     ast = parser.parse() #con i tokens passati al parser faccio il parsing
+    print("This is the parsing three")
+    print(ast.node)
 
     #Optimize
     optimizer = OptimizerSelvaggio(text)
