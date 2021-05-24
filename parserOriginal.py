@@ -6,13 +6,6 @@ import collections
 from strings_with_arrows import *
 
 #######################################
-# CONSTANTS
-#######################################
-
-
-
-
-#######################################
 # ERRORS
 #######################################
 
@@ -200,7 +193,6 @@ class Lexer:
                        # print("Variabile: " + variableName)
                         tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
                     # tokens.append(Token(TT_VAR_A, pos_start=self.pos))
-
             elif self.current_char == '(':
                 digit = ''
                 variableName = ''
@@ -213,7 +205,6 @@ class Lexer:
                 functionName = ''
                 tokens.append(Token(TT_RPAREN, pos_start=self.pos))
                 self.advance()
-
             else:
                 pos_start = self.pos.copy()
                 char = self.current_char
@@ -461,34 +452,51 @@ class OptimizerSelvaggio:
 
     def findCommon(self, terms):
         indx = 0
-
+        m= 0
+        multichar = []
         position = terms.copy()
 
         for i in range(len(position)):
             position[i] = ''
+            multichar.append('')
+
+        for i in range(len(terms)):  # questo va a vedere se la variabile è "lunga" o "corta"
+            if (('*' in terms[i]) or ('/' in terms[i]) or len(terms[i]) == 1):
+                multichar[m] = True
+                m += 1
+            elif(len(terms[i]) > 1):
+                multichar[m] = False
+                m += 1
+
+        print(multichar)
 
         for i in range(len(terms)):
             for y in range(len(terms)):
-                if((terms[i] in terms[y]) or (terms[y] in terms[i])): #qui vado a trovare le posizioni di dove la stessa variabile è ripetuta
-                    if(i!= y and (terms[i] and terms[i]) != ("+" or "-")):
+                if((terms[i] in terms[y] and multichar[y]) or (terms[y] in terms[i] and multichar[i])): #qui vado a trovare le posizioni di dove la stessa variabile è ripetuta
+                    if(i!= y and (terms[y] and terms[i]) != ("+" or "-")):
                         position[indx] = ''.join(sorted(set(terms[i]).intersection(set(terms[y]))))  #vorrei che mettessi il numero corrispondente a quante volte la variabile si presenta
                 indx += 1
             indx = 0
 
         print("terms")
         print(terms)
+        print("Position")
+        print(position)
         return position
 
     def saveAndDelete(self,terms,position):
 
         newString = []
         checkPos = []
+
         z = 0
         y = 0
         w = 0
 
-        for i in range(len(terms)): #questo è quello che causa avere un vettore troppo lungo
+
+        for i in range(len(terms)):
             checkPos.append('')
+
 
         for i in range(3*len(terms)):  # questo è quello che causa avere un vettore troppo lungo
             newString.append('')
@@ -497,12 +505,14 @@ class OptimizerSelvaggio:
 
         for i in range(len(terms)): #elimino gli spazi in position
             if(position[i] != '' and position[i] not in checkPos and position[i] not in self.op): #le variabili che salvo
-                checkPos[y] = position[i]
-                y+=1
+                #if(multichar[i]):
+                    checkPos[y] = position[i]  #devo fare questa associazione solo se la variabile di position che nella stessa i ha associato un true in multichar
+                    y+=1
 
         checkPos = list(filter(None, checkPos))
-        print("checkpos")
+        print("variabili da mettere in comune")
         print(checkPos)
+
 
         y = 0
         rimosso = False
@@ -523,7 +533,7 @@ class OptimizerSelvaggio:
             newString[w] = '*('  #apro la parentesi
             w+=1
             for y in range(len(terms)):
-                if (checkPos[z] in terms[y]): #l'ordine deve essere dettato da quelli in "checkpos"
+                if ((checkPos[z] in terms[y])): #l'ordine deve essere dettato da quelli in "checkpos"
                     if(y-1>0):
                         newString[w] = terms[y-1] #gestisco il segno
                         w+=1
