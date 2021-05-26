@@ -189,7 +189,7 @@ class Lexer:
                             tokens.append(Token(functionName, pos_start=self.pos))
                             self.advance()
 
-                        if(functionName[-2] == '('): #se tra le parentesi non c'è niente
+                        if(functionName[-2] == '('): #se tra le parentesi non c'è nin
                             sys.exit()
                     else:
                        # print("Variabile: " + variableName)
