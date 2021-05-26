@@ -141,7 +141,6 @@ class Lexer:
 
                 tokens.append(Token(digit, pos_start=self.pos))
 
-
             elif self.current_char == '+':
                 digit = ''
                 functionName = ''
@@ -189,6 +188,9 @@ class Lexer:
                            # print("function " + functionName)
                             tokens.append(Token(functionName, pos_start=self.pos))
                             self.advance()
+
+                        if(functionName[-2] == '('): #se tra le parentesi non c'è niente
+                            sys.exit()
                     else:
                        # print("Variabile: " + variableName)
                         tokens.append(Token(variableName,pos_start=self.pos))  # qui devo fare in modo di appendere la mia nuova variabile ch'è costituita da più lettere
@@ -252,16 +254,17 @@ class BinOpNode:
         self.left_node = left_node
         self.op_tok = op_tok
         self.right_node = right_node
-        if(str(self.right_node) in str(TT_EOF)):
-            print("Error, expected a variable or function after the operator: " + str(self.op_tok))
-            sys.exit(1)
+
 
     def __repr__(self):
+
         return f'({self.left_node}, {self.op_tok}, {self.right_node})'
+
 
 
 class UnaryOpNode:
     def __init__(self, op_tok, node):
+
         self.op_tok = op_tok
         self.node = node
 
@@ -376,6 +379,7 @@ class Parser:
             right = res.register(func()) #da qui estraggo il nodo a DESTRO
 
             if res.error: return res
+
             left = BinOpNode(left, op_tok, right)
 
         return res.success(left)
@@ -423,7 +427,7 @@ class OptimizerSelvaggio:
     def __init__(self,text):
         self.text = text
         terms = []
-        index = 0
+        index = 1
         terms = self.scan(terms, index)
         position = self.findCommon(terms)
         self.newstring = self.saveAndDelete(terms,position)
@@ -431,9 +435,10 @@ class OptimizerSelvaggio:
 
 
     def scan(self, terms, index):
-        for i in range(len(self.text)): #questo è quello che causa avere un vettore troppo lungo
+        for i in range(2*len(self.text)): #questo è quello che causa avere un vettore troppo lungo
             terms.append('')
 
+        terms[0] += '+'
         for i in range(len(self.text)):  #divido in terms
             if(self.text[i] not in self.op):
                 #print(self.text[i])
@@ -479,10 +484,10 @@ class OptimizerSelvaggio:
                 indx += 1
             indx = 0
 
-        #print("terms")
-        #print(terms)
-        #print("Position")
-        #print(position)
+        print("terms")
+        print(terms)
+        print("Position")
+        print(position)
         return position
 
     def saveAndDelete(self,terms,position):
@@ -507,8 +512,8 @@ class OptimizerSelvaggio:
                     y+=1
 
         checkPos = list(filter(None, checkPos))
-        #print("variabili da mettere in comune - chekpos")
-        #print(checkPos)
+        print("variabili da mettere in comune - chekpos")
+        print(checkPos)
 
         y = 0
         rimosso = False
@@ -534,10 +539,12 @@ class OptimizerSelvaggio:
                         newString[w] = terms[y-1] #gestisco il segno
                         w+=1
                     for k in range(len(terms[y])):  #qui vado a rimuovere la variabile che essendo in comune è stata portata fuori
+                       # print(terms[y])
                         if(not rimosso):
                             newString[w] += '1'
                             rimosso = True
                         else:
+                            #print(terms[y][k]) #il problema sta qui
                             newString[w] += terms[y][k]  # metto il simbolo
 
                     rimosso = False
@@ -557,8 +564,10 @@ class OptimizerSelvaggio:
                     newString[w] += terms[i] #la variabile non presente
                     w += 1
 
-       # print("New string")
-       # print(newString)
+
+
+        print("New string")
+        print(newString)
         return newString
 
     def Getter(self):
@@ -625,6 +634,7 @@ class StringRefactoring():
 #######################################
 
 def run(fn, text):
+    working = True
     # Generate tokens
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
@@ -633,11 +643,15 @@ def run(fn, text):
     # Generate AST
     parser = Parser(tokens) #instanzio il parser e gli passo i tokens
     ast = parser.parse() #con i tokens passati al parser faccio il parsing
+
+
     print("This is the parsing three")
+
     print(ast.node)
 
+
     #Optimize
+
     optimizer = OptimizerSelvaggio(text)
     refactor = StringRefactoring(optimizer.Getter())
-
     return ast.node, ast.error
