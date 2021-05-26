@@ -257,7 +257,6 @@ class BinOpNode:
 
 
     def __repr__(self):
-
         return f'({self.left_node}, {self.op_tok}, {self.right_node})'
 
 
@@ -598,7 +597,7 @@ class StringRefactoring():
         new2 = ''
 
         for i in range(len(opt)):
-            if((opt[i].isnumeric()) and opt[i+1] == "*"):
+            if((opt[i].isnumeric()) and opt[i+1] == ("*" or '/')): # 1*a = a
                 new += ''
                 j += 2
 
@@ -608,16 +607,15 @@ class StringRefactoring():
                     j+= 1
 
         j = 0
-        for i in range(len(new)):
-            if (new[i] == "+" and new[i+1].isalpha() and new[i+1] and i == 0):
-                new2 += ''
-                j += 1
 
-            else:
-                #print(j)
-                if (j < len(new)):
-                    new2 += new[j]
-                    j += 1
+        if(new[-1] == ("+") or new[-1] == ("-") ): #tolgo un - alla fine
+            for i in range(len(new)-1):
+                new2 += new[i]
+        else:
+            for i in range(len(new)):
+                new2 += new[i]
+
+
 
 
         print("Optimized string")
@@ -646,7 +644,6 @@ def run(fn, text):
 
 
     print("This is the parsing three")
-
     print(ast.node)
 
 
