@@ -8,11 +8,14 @@ string = (term | func) (operator  (term| func))*
 test cases
 
 POSITIVE
-a+a -> a(1+1)   grouping variables
-a*a+a -> a*(a+1) grouping variables
+a+b+c -> a+b+c nothing happens
 
-a*a+a+b  -> a*(a+1)+b grouping variables even if there are different variables
+a+a -> a(1+1)   grouping variables
+a+a*a -> a*(1+a) grouping variables
+
+c*b+c+z -> c*(b+1)+z grouping variables even if there are different variables
 a+b+b+a  -> a*(1+1) + b*(1+1) grouping variables even if there are different variables
+
 a+b-b+a -> a*(1+1) + b*(1-1) handling negative values
 
 func(x)+func(x) ->  func(x)+func(x) functions are not optimized bc they can create problems
@@ -21,9 +24,12 @@ a*a+a+func(a) -> a*(1+1)+func(a) variable are optimized, function dont
 a*func(a)+a -> a*(func(a)+1)
 
 NEGATIVE
-a++a
+a++a   #double operator
 b+/a
-func(a + x
+
+func(a + x  #function written in the wrong way
 func() + x
+
+a & a   #illegal char
 
 

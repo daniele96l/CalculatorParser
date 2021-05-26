@@ -615,9 +615,6 @@ class StringRefactoring():
             for i in range(len(new)):
                 new2 += new[i]
 
-
-
-
         print("Optimized string")
         print(new2)
 
