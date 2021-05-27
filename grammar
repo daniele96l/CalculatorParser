@@ -5,13 +5,17 @@ function = func [factor]
 string = (term | func) (operator  (term| func))*
 
 
-test cases
+Test Cases
 
 POSITIVE
 a+b+c -> a+b+c nothing happens
+a+8 -> numbers are threated like variables
 
 a+a -> a(1+1)   grouping variables
 a+a*a -> a*(1+a) grouping variables
+a/b+a -> +a*(1/b+1)   multiplication or division dosent make a difference
+b*a+a -> +a*(b*1+1)
+a*a*a+a -> +a*(a*a+1) three times multiplication
 
 c*b+c+z -> c*(b+1)+z grouping variables even if there are different variables
 a+b+b+a  -> a*(1+1) + b*(1+1) grouping variables even if there are different variables
@@ -20,8 +24,12 @@ a+b-b+a -> a*(1+1) + b*(1-1) handling negative values
 
 func(x)+func(x) ->  func(x)+func(x) functions are not optimized bc they can create problems
 
-a*a+a+func(a) -> a*(1+1)+func(a) variable are optimized, function dont
-a*func(a)+a -> a*(func(a)+1)
+
+a*func(a)+a -> +a*(+1)+a*func(a) #dovrebbe raggruppare le "a"? bho
+
+a+a*a+func(a) -> a*(1+1)+func(a)  #qui mi spunta una "+" che non ci deve stare
+
+z+a+c+a*b+func(x)  -> +a*(1+b)+c+z+func(x)
 
 NEGATIVE
 a++a   #double operator
@@ -32,4 +40,16 @@ func() + x
 
 a & a   #illegal char
 
+
+
+ for i in range(len(terms)):
+            if terms[i] not in checkPos and terms[i] not in self.op: #le cose non ottimizzate le metto alla fine
+                #print(terms)
+                if(i-1 > 0 ):
+                    newString[w] += terms[i-1] #il segno prima della variabile non presente
+                    w += 1
+
+                if(('*' or '/')  not in terms[i]):
+                    newString[w] += terms[i] #la variabile non presente
+                    w += 1
 

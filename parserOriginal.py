@@ -190,6 +190,7 @@ class Lexer:
                             self.advance()
 
                         if(functionName[-2] == '('): #se tra le parentesi non c'è nin
+                            print("Syntax error")
                             sys.exit()
                     else:
                        # print("Variabile: " + variableName)
@@ -426,14 +427,14 @@ class OptimizerSelvaggio:
     def __init__(self,text):
         self.text = text
         terms = []
+
         index = 1
         terms = self.scan(terms, index)
         position = self.findCommon(terms)
         self.newstring = self.saveAndDelete(terms,position)
 
-
-
     def scan(self, terms, index):
+
         for i in range(2*len(self.text)): #questo è quello che causa avere un vettore troppo lungo
             terms.append('')
 
@@ -452,12 +453,17 @@ class OptimizerSelvaggio:
         for i in range(len(self.text)):  #tolgo gli spazi vuoti
             terms[:] = [item for item in terms if item != '']
 
+
+
+
         return terms
 
     def findCommon(self, terms):
         indx = 0
         m= 0
         multichar = []
+
+
         position = terms.copy()
 
         for i in range(len(position)):
@@ -465,6 +471,7 @@ class OptimizerSelvaggio:
             multichar.append('')
 
         for i in range(len(terms)):  # questo va a vedere se la variabile è "lunga" o "corta"
+
             if (('*' in terms[i]) or ('/' in terms[i]) or len(terms[i]) == 1):
                 multichar[m] = True
                 m += 1
@@ -483,6 +490,9 @@ class OptimizerSelvaggio:
                 indx += 1
             indx = 0
 
+
+
+
         print("terms")
         print(terms)
         print("Position")
@@ -490,15 +500,29 @@ class OptimizerSelvaggio:
         return position
 
     def saveAndDelete(self,terms,position):
+        fun_pos = []
+
+        for i in range(len(terms)):
+            fun_pos.append('')
+            fun_pos[i] = True
+
+            if '(' in terms[i] and len(terms[i]) > 1:
+                fun_pos[i] = False
+
+
+        print("fun_pos")
+        print(fun_pos)
 
         newString = []
         checkPos = []
+        optimization = []
         z = 0
         y = 0
         w = 0
 
         for i in range(len(terms)):
             checkPos.append('')
+            optimization.append('')
 
         for i in range(3*len(terms)):  # questo è quello che causa avere un vettore troppo lungo
             newString.append('')
@@ -506,7 +530,7 @@ class OptimizerSelvaggio:
         finalString = newString.copy()
 
         for i in range(len(terms)): #elimino gli spazi in position
-            if(position[i] != '' and position[i] not in checkPos and position[i] not in self.op): #le variabili che salvo
+            if(position[i] != '' and position[i] not in checkPos and position[i] not in self.op and fun_pos[i]): #le variabili che salvo
                     checkPos[y] = position[i]  #devo fare questa associazione solo se la variabile di position che nella stessa i ha associato un true in multichar
                     y+=1
 
@@ -538,13 +562,14 @@ class OptimizerSelvaggio:
                         newString[w] = terms[y-1] #gestisco il segno
                         w+=1
                     for k in range(len(terms[y])):  #qui vado a rimuovere la variabile che essendo in comune è stata portata fuori
-                       # print(terms[y])
-                        if(not rimosso):
-                            newString[w] += '1'
-                            rimosso = True
-                        else:
-                            #print(terms[y][k]) #il problema sta qui
-                            newString[w] += terms[y][k]  # metto il simbolo
+                         print(terms[y][k])
+                         if (fun_pos[y]):
+                            if(not rimosso and terms[y][k] in checkPos):
+                                newString[w] += '1'
+                                rimosso = True
+                            else:
+                                newString[w] += terms[y][k]  # metto il simbolo
+                                optimization[y] = '1'
 
                     rimosso = False
                     entrato = False
@@ -552,18 +577,14 @@ class OptimizerSelvaggio:
             newString[w] = ')'   #chiudo la parentesi
             w+=1
 
+
         for i in range(len(terms)):
-            if terms[i] not in checkPos and terms[i] not in self.op: #le cose non ottimizzate le metto alla fine
-                #print(terms)
-                if(i-1 > 0 ):
-                    newString[w] += terms[i-1] #il segno prima della variabile non presente
-                    w += 1
-
-                if(('*' or '/')  not in terms[i]):
-                    newString[w] += terms[i] #la variabile non presente
-                    w += 1
-
-
+            if str(checkPos) not in str(terms[i]) and optimization[i] != '1' and terms[i] != '+' and terms[
+                i] not in checkPos and terms[i] != '-':
+                newString[w] += terms[i - 1]  # la variabile non presente
+                w += 1
+                newString[w] += terms[i]  # la variabile non presente
+                w += 1
 
         print("New string")
         print(newString)
@@ -597,10 +618,10 @@ class StringRefactoring():
         new2 = ''
 
         for i in range(len(opt)):
-            if((opt[i].isnumeric()) and opt[i+1] == ("*" or '/')): # 1*a = a
+            #print(opt[i])
+            if((opt[i] == '1') and opt[i+1] == ("*" or '/')): # 1*a = a
                 new += ''
                 j += 2
-
             else:
                 if(j < len(opt)):
                     new += opt[j]
@@ -608,7 +629,8 @@ class StringRefactoring():
 
         j = 0
 
-        if(new[-1] == ("+") or new[-1] == ("-") ): #tolgo un - alla fine
+
+        if(new[-1] == ("+") or new[-1] == ("-") ): #tolgo un + o - alla fine
             for i in range(len(new)-1):
                 new2 += new[i]
         else:
