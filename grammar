@@ -13,8 +13,10 @@ a+8 -> numbers are threated like variables
 
 a+a -> a(1+1)   grouping variables
 a+a*a -> a*(1+a) grouping variables
+
 a/b+a -> +a*(1/b+1)   multiplication or division dosent make a difference
 b*a+a -> +a*(b*1+1)
+
 a*a*a+a -> +a*(a*a+1) three times multiplication
 
 c*b+c+z -> c*(b+1)+z grouping variables even if there are different variables
@@ -23,7 +25,6 @@ a+b+b+a  -> a*(1+1) + b*(1+1) grouping variables even if there are different var
 a+b-b+a -> a*(1+1) + b*(1-1) handling negative values
 
 func(x)+func(x) ->  func(x)+func(x) functions are not optimized bc they can create problems
-
 
 a*func(a)+a -> +a*(+1)+a*func(a) #dovrebbe raggruppare le "a"? bho
 
