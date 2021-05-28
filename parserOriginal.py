@@ -695,7 +695,7 @@ def Test():
 
 def run(fn, text):
 
-    test = Test()
+
     # Generate tokens
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()

@@ -24,11 +24,13 @@ a+b+b+a  -> a*(1+1) + b*(1+1) grouping variables even if there are different var
 
 a+b-b+a -> a*(1+1) + b*(1-1) handling negative values
 
+a+f(x) -> a+f(x) functions can have different names, the important thing is that they have the parentesis
+
+a+func(a) ->  a+func(a) functions are not optimized
+
 func(x)+func(x) ->  func(x)+func(x) functions are not optimized bc they can create problems
 
-a*func(a)+a -> +a*(+1)+a*func(a) #dovrebbe raggruppare le "a"? bho
-
-a+a*a+func(a) -> a*(1+1)+func(a)  #qui mi spunta una "+" che non ci deve stare
++a*(1+a)+func(b)+func(b) -> a*(1+1)+func(b)+func(b)  function and variables are handled separatelly
 
 z+a+c+a*b+func(x)  -> +a*(1+b)+c+z+func(x)
 
