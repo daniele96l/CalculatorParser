@@ -411,7 +411,7 @@ class Optimizer:
             return ast
 
     def scan(self):
-        print(self.pop_left(self.ast))
+        #print(self.pop_left(self.ast))
         self.pop_right(self.ast)
 
 
@@ -493,10 +493,10 @@ class OptimizerSelvaggio:
 
 
 
-        print("terms")
-        print(terms)
-        print("Position")
-        print(position)
+        #print("terms")
+        #print(terms)
+        #print("Position")
+        #print(position)
         return position
 
     def saveAndDelete(self,terms,position):
@@ -510,8 +510,8 @@ class OptimizerSelvaggio:
                 fun_pos[i] = False
 
 
-        print("fun_pos")
-        print(fun_pos)
+        #print("fun_pos")
+        #print(fun_pos)
 
         newString = []
         checkPos = []
@@ -535,8 +535,8 @@ class OptimizerSelvaggio:
                     y+=1
 
         checkPos = list(filter(None, checkPos))
-        print("variabili da mettere in comune - chekpos")
-        print(checkPos)
+        #print("variabili da mettere in comune - chekpos")
+        #print(checkPos)
 
         y = 0
         rimosso = False
@@ -562,7 +562,7 @@ class OptimizerSelvaggio:
                         newString[w] = terms[y-1] #gestisco il segno
                         w+=1
                     for k in range(len(terms[y])):  #qui vado a rimuovere la variabile che essendo in comune è stata portata fuori
-                         print(terms[y][k])
+                         #print(terms[y][k])
                          if (fun_pos[y]):
                             if(not rimosso and terms[y][k] in checkPos):
                                 newString[w] += '1'
@@ -586,8 +586,8 @@ class OptimizerSelvaggio:
                 newString[w] += terms[i]  # la variabile non presente
                 w += 1
 
-        print("New string")
-        print(newString)
+        #print("New string")
+        #print(newString)
         return newString
 
     def Getter(self):
@@ -647,11 +647,55 @@ class StringRefactoring():
 #abc+adf -> a(b*c+d*f)
 
 #######################################
+# Test
+#######################################
+
+def Test():
+    # --------------
+    # Unit test cases
+    # --------------
+    # We are going to test separately the different part of the program
+
+    # --------------
+    # Test the lexer
+    # --------------
+    print("Testing the lexer")
+    lexer = Lexer('<stdin>','z+a+c+a*b+func(x)')
+    tokens, error = lexer.make_tokens()
+    print("The lexer works, here there are the tokens")
+    print(tokens)
+    print("...")
+    if error: return None, error
+
+    # --------------
+    # Test the parser
+    # --------------
+    print("Testing the parser")
+    parser = Parser(tokens)  # instanzio il parser e gli passo i tokens
+    ast = parser.parse()  # con i tokens passati al parser faccio il parsing
+    print("The lexer works, here there is the parsing three")
+    print(ast.node)
+    print("...")
+
+
+    # --------------
+    # Test the optimizer
+    # --------------
+    print("Testing the optimizer")
+    optimizer = OptimizerSelvaggio('z+a+c+a*b+func(x)')
+    print("The optimizer works")
+    refactor = StringRefactoring(optimizer.Getter())
+    print("Now you can write your string in the command line to optimize it:")
+    print("...")
+    return ast.node, ast.error
+
+#######################################
 # RUN
 #######################################
 
 def run(fn, text):
-    working = True
+
+    test = Test()
     # Generate tokens
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
@@ -661,13 +705,10 @@ def run(fn, text):
     parser = Parser(tokens) #instanzio il parser e gli passo i tokens
     ast = parser.parse() #con i tokens passati al parser faccio il parsing
 
-
     print("This is the parsing three")
     print(ast.node)
 
-
     #Optimize
-
     optimizer = OptimizerSelvaggio(text)
     refactor = StringRefactoring(optimizer.Getter())
     return ast.node, ast.error
