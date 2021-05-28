@@ -15,10 +15,6 @@ except:
 
 while True:
 
-
-
-
-
     text = input('basic > ')
 
 

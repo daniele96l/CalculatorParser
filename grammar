@@ -30,7 +30,7 @@ a+func(a) ->  a+func(a) functions are not optimized
 
 func(x)+func(x) ->  func(x)+func(x) functions are not optimized bc they can create problems
 
-+a*(1+a)+func(b)+func(b) -> a*(1+1)+func(b)+func(b)  function and variables are handled separatelly
+a*(1+a)+func(b)+func(b) -> a*(1+1)+func(b)+func(b)  function and variables are handled separatelly
 
 z+a+c+a*b+func(x)  -> +a*(1+b)+c+z+func(x)
 
@@ -44,15 +44,4 @@ func() + x
 a & a   #illegal char
 
 
-
- for i in range(len(terms)):
-            if terms[i] not in checkPos and terms[i] not in self.op: #le cose non ottimizzate le metto alla fine
-                #print(terms)
-                if(i-1 > 0 ):
-                    newString[w] += terms[i-1] #il segno prima della variabile non presente
-                    w += 1
-
-                if(('*' or '/')  not in terms[i]):
-                    newString[w] += terms[i] #la variabile non presente
-                    w += 1
 

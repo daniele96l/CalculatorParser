@@ -616,6 +616,7 @@ class StringRefactoring():
         j = 0
         new = ''
         new2 = ''
+        new3 = ''
 
         for i in range(len(opt)):
             #print(opt[i])
@@ -637,8 +638,19 @@ class StringRefactoring():
             for i in range(len(new)):
                 new2 += new[i]
 
+        for i in range(len(new2)):
+            if(i+1 < len(new2)):
+                if(new2[i]=='+' and new[i+1] ==')'):
+                    print("Ok")
+                    new3 += ''
+                else:
+                    new3 += new[i]
+            else:
+                new3 += new[i]
+
+
         print("Optimized string")
-        print(new2)
+        print(new3)
 
 
 #dobbiamo fare una roba tipo entrare dentro un espressione e vedere le cose che sono unite da term + term
