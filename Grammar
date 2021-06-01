@@ -1,0 +1,10 @@
+operator: (+|-|*|/)
+factor = (letter)
+term = factor ((operator) factor)*
+function = func [factor]
+string = (term | func) (operator  (term| func))*
+
+
+
+
+

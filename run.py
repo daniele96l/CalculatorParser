@@ -17,7 +17,6 @@ while True:
 
     text = input('basic > ')
 
-
     try:
         result, error = parserOriginal.run('<stdin>', text)
         if error:
