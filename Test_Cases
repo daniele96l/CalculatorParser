@@ -1,43 +1,50 @@
 
 POSITIVE
 
-Input           |   Output    | Explanation
+Input           |   Output          | Explanation
 ----------------------------------------------
-a+b+c           | a+b+c       |  nothing happens
-a+8             | a+ 8        |  numbers are threated like variables
+a+b+c           | +a+b+c            |  nothing happens
 
-a+a             | (1+1)       |  grouping variables
-a+a*a           | a*(1+a)     |  grouping variables
+a+8             | +a+8              |  numbers are threated like variables
+3+3             | +3(1+1)
 
-a/b+a           | +a*(1/b+1)  | multiplication or division dosent make a difference
+a+a             | +a*(1+1)          |  grouping variables
+a+a*a           | +a*(1+a)
+
+A+a             | +A+a              | the program is case sensisitive
+A+A+a+a         | +A*(1+1)+a*(+1+1)
+
+a/b+a           | +a*(1/b+1)        | multiplication or division dosent make a difference
 b*a+a           | +a*(b*1+1)
 
-a*a*a+a         | +a*(a*a+1)  |  three times multiplication
+c*b+c+z         | +c*(b+1)+z        | grouping variables even if there are different variables
+a+b+b+a         | +a*(1+1)+b*(1+1)  |
 
-c*b+c+z         | c*(b+1)+z   |   grouping variables even if there are different variables
-a+b+b+a         | a*(1+1) + b*(1+1)   | grouping variables even if there are different variables
+a+b-b+a         | +a*(1+1) + b*(1-1)| handling negative values
 
-a+b-b+a         | a*(1+1) + b*(1-1) | handling negative values
+a+f(x)          | +a+f(x)           | functions can have different names, the important thing is that they have the parentesis
+a+func(a)       | +a+func(a)        | functions are not optimized since  they can create problems
+func(x)+func(x) | +func(x)+func(x)
+a+a+f(a)        | +a*(1+1)+ f(a)
 
-a+f(x)          | a+f(x)      |  functions can have different names, the important thing is that they have the parentesis
-
-a+func(a)       |  a+func(a)  | functions are not optimized
-
-func(x)+func(x) |  func(x)+func(x) | functions are not optimized bc they can create problems
-
-a*(1+a)+func(b)+func(b) | a*(1+1)+func(b)+func(b)  | function and variables are handled separatelly
-
-z+a+c+a*b+func(x)|  +a*(1+b)+c+z+func(x)  |
+a+a+func(b)+func(b) | a*(1+1)+func(b)+func(b)  | function and variables are handled separatelly
+z+a+c+a*b+func(x)|  +a*(1+b)+c+z+func(x)       | more complex example
+z+a+c+a/b+func(x)|  +a*(+1+1/b)+z+c+func(x)    | more complex example + division
+z+a+c+a/b+func(x)+3+A+3+A  | +a*(+1+1/b)+3*(+1+1)+A*(+1+1)+z+c+func(x)  | more comple example + division + numbers + uppercase and lowercase letters
 
 ---------------------------------------------------
 
 NEGATIVE
 Input      | Output
 ------------------------------------
-a++a       | #double operator
-b+/a       |
+a++a       | #sintax error
+b+/a       | #sintax error
 
-func(a + x | #function written in the wrong way
-func() + x |
+func(a + x | #sintax error
+func() + x | #sintax error
 
-a & a      | #illegal char
+func[a] + a| #illegal character
+
+a & a      | #illegal character
+
+

@@ -1,3 +1,5 @@
+#This is just for the error management
+
 def string_with_arrows(text, pos_start, pos_end):
     result = ''
 

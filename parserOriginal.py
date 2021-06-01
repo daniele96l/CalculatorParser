@@ -63,7 +63,6 @@ class Position:
 # TOKENS
 #######################################
 
-#questo è quello che funziona
 
 TT_INT = 'INT'
 TT_FLOAT = 'FLOAT'
@@ -81,7 +80,7 @@ TT_OP = 'MUL','DIV','PLUS','MINUS',
 alphabet = 'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z','x','y','w','j','k'
 TT_FUNC = "Func"
 DIGITS = '0123456789'
-Forbidden = '.',',','%','£'
+Forbidden = '.',',','%','£',
 
 
 class Token:
@@ -489,9 +488,6 @@ class OptimizerSelvaggio:
 
                 indx += 1
             indx = 0
-
-
-
 
         #print("terms")
         #print(terms)
