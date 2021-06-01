@@ -1,0 +1,55 @@
+#This is not the output file, since the program delivers the output in the console#
+#It's just the list of the output string corrensponding with the
+#input strings present in the tile "Input"
+
++a+b+c
+
++a+8
+
++3(1+1)
+
++a*(1+1)
+
++a*(1+a)
+
++A+a
+
++A*(1+1)+a*(+1+1)
+
++a*(1/b+1)
+
++a*(b*1+1)
+
++c*(b+1)+z
+
++a*(1+1)+b*(1+1)
+
++a*(1+1) + b*(1-1)
+
++a+f(x)
+
++a+func(a)
+
++func(x)+func(x)
+
++a*(1+1)+ f(a)
+
++a*(1+1)+func(b)+func(b)
+
++a*(1+b)+c+z+func(x)
+
++a*(+1+1/b)+z+c+func(x)
+
++a*(+1+1/b)+3*(+1+1)+A*(+1+1)+z+c+func(x)
+
+#sintax error
+
+#sintax error
+
+#sintax error
+
+#sintax error
+
+#illegal character
+
+#illegal character

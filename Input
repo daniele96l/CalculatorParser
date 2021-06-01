@@ -1,0 +1,55 @@
+#This is not the actual input file, the program takes the input from the console
+#It's just the list of the test cases that i did
+#The output regarding each string is in the file Output
+
+a+b+c
+
+a+8
+
+3+3
+
+a+a
+
+a+a*a
+
+A+a
+
+A+A+a+a
+
+a/b+a
+
+b*a+a
+
+c*b+c+z
+
+a+b+b+a
+
+a+b-b+a
+
+a+f(x)
+
+a+func(a)
+
+func(x)+func(x)
+
+a+a+f(a)
+
+a+a+func(b)+func(b)
+
+z+a+c+a*b+func(x)
+
+z+a+c+a/b+func(x)
+
+z+a+c+a/b+func(x)+3+A+3+A
+
+a++a
+
+b+/a
+
+func(a + x
+
+func() + x
+
+func[a] + a
+
+a & a

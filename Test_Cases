@@ -1,20 +1,22 @@
+#### The input/output is given/delivered by command line (console) ####
+#### During manual test dont copy/paste the string, but type them  ####
 
 POSITIVE
 
-Input           |   Output          | Explanation
+Input           | Output            | Explanation
 ----------------------------------------------
 a+b+c           | +a+b+c            |  nothing happens
 
-a+8             | +a+8              |  numbers are threated like variables
+a+8             | +a+8              |  numbers are treated like variables
 3+3             | +3(1+1)
 
 a+a             | +a*(1+1)          |  grouping variables
 a+a*a           | +a*(1+a)
 
-A+a             | +A+a              | the program is case sensisitive
+A+a             | +A+a              | the program is case-sensitive
 A+A+a+a         | +A*(1+1)+a*(+1+1)
 
-a/b+a           | +a*(1/b+1)        | multiplication or division dosent make a difference
+a/b+a           | +a*(1/b+1)        | multiplication or division dosen't make a difference
 b*a+a           | +a*(b*1+1)
 
 c*b+c+z         | +c*(b+1)+z        | grouping variables even if there are different variables
@@ -27,14 +29,15 @@ a+func(a)       | +a+func(a)        | functions are not optimized since  they ca
 func(x)+func(x) | +func(x)+func(x)
 a+a+f(a)        | +a*(1+1)+ f(a)
 
-a+a+func(b)+func(b) | a*(1+1)+func(b)+func(b)  | function and variables are handled separatelly
-z+a+c+a*b+func(x)|  +a*(1+b)+c+z+func(x)       | more complex example
-z+a+c+a/b+func(x)|  +a*(+1+1/b)+z+c+func(x)    | more complex example + division
+a+a+func(b)+func(b) | a*(1+1)+func(b)+func(b)     | function and variables are handled separately
+z+a+c+a*b+func(x)   |  +a*(1+b)+c+z+func(x)       | more complex example
+z+a+c+a/b+func(x)   |  +a*(+1+1/b)+z+c+func(x)    | more complex example + division
 z+a+c+a/b+func(x)+3+A+3+A  | +a*(+1+1/b)+3*(+1+1)+A*(+1+1)+z+c+func(x)  | more comple example + division + numbers + uppercase and lowercase letters
 
 ---------------------------------------------------
 
 NEGATIVE
+
 Input      | Output
 ------------------------------------
 a++a       | #sintax error
@@ -46,5 +49,6 @@ func() + x | #sintax error
 func[a] + a| #illegal character
 
 a & a      | #illegal character
+
 
 
